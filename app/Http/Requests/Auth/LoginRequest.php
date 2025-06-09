@@ -59,18 +59,24 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
-            return;
+        // The key ($this->throttleKey()) identifies the specific action/user being throttled.
+        // The second parameter (5) is the maximum number of attempts allowed.
+        // The third parameter (60) is the decay minutes, meaning the rate limit applies for 60 seconds (1 minute).
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5, 60)) {
+            return; // Not rate-limited, so allow the action to proceed.
         }
 
-        event(new Lockout($this));
+        // If we reach here, it means too many attempts have been made.
+        event(new Lockout($this)); // Dispatch an event to indicate a lockout.
 
+        // Calculate how many seconds are left until the user can try again.
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
+        // Throw a validation exception with a message informing the user about the lockout.
         throw ValidationException::withMessages([
             'email' => trans('auth.throttle', [
                 'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
+                'minutes' => ceil($seconds / 60), // Calculate minutes (rounded up) for the message.
             ]),
         ]);
     }
