@@ -19,4 +19,10 @@ class Task extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+
+    public function logs()
+    {
+        return $this->hasMany(TaskLog::class);
+    }
 }

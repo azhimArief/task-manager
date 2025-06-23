@@ -51,5 +51,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Task::class);
     }
+    public function statusChanges()
+{
+    return $this->hasMany(TaskLog::class, 'changed_by');
+}
 
 }
