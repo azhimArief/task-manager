@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Task;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreTaskRequest extends FormRequest
@@ -11,7 +12,10 @@ class StoreTaskRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        // return false;
+        // This is the correct way to use your TaskPolicy to authorize the request.
+        // It checks if the currently authenticated user can 'create' a Task.
+        return $this->user()->can('create', Task::class);
     }
 
     /**
